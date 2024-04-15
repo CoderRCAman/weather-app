@@ -1,6 +1,5 @@
 import { useSearchParams } from "next/navigation";
 import React from "react";
-import { PageProps } from "../../../.next/types/app/page";
 import Search from "@/components/Search/Search";
 import { FiveDayForcast, Weather, WeatherData } from "@/types/types";
 import ShowTime from "@/components/Weather/ShowTime";
@@ -21,7 +20,6 @@ import DrizzleBg from "@/components/Weather/DrizzleBg";
 import AtmosphereBg from "@/components/Weather/Atmosphere";
 import SnowBg from "@/components/Weather/SnowBg";
 import Bookmark from "@/components/Weather/Bookmark";
-import useHistory from "@/hooks/useHistory";
 import AddHistory from "@/components/Weather/AddHistory";
 async function getData(lat: string, lon: string) {
   if (!lat || !lon) return {};
@@ -50,17 +48,16 @@ const obj = {
   Haze: <HazeBg />,
   Rain: <RainBg />,
   Drizzle: <DrizzleBg />,
-  Atmosphere: <AtmosphereBg />,
   Snow: <SnowBg />,
 };
-export default async function Page({ searchParams }: PageProps) {
+export default async function Page({ searchParams }: any) {
   const { lat, lon, city, country, timezone, id } = searchParams;
   const data: WeatherData = await getData(searchParams.lat, searchParams.lon);
   const fiveDaysForcat: FiveDayForcast = await getFiveDaysForcation(
     searchParams.lat,
     searchParams.lon
   );
-
+  console.log(obj[data.weather[0].main as keyof typeof obj]);
   return (
     <section className="relative">
       {obj[data.weather[0].main as keyof typeof obj] || <AtmosphereBg />}
@@ -73,7 +70,7 @@ export default async function Page({ searchParams }: PageProps) {
           country={country}
           timezone={timezone}
         />
-        <Search />
+        <Search /> 
         <Bookmark
           city={city}
           country={country}
