@@ -1,5 +1,4 @@
 "use client";
-import { useInterval } from "@uidotdev/usehooks";
 import { useEffect, useState } from "react";
 export default function ShowTime() {
   const [currentTime, setCurrentTime] = useState(new Date());
