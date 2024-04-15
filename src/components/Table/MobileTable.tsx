@@ -68,10 +68,8 @@ const MobileTable = observer(() => {
     estimateSize: () => 160,
     overscan: 5,
   });
-  console.log(flatData);
   React.useEffect(() => {
     const [lastItem] = [...rowVirtualizer.getVirtualItems()].reverse();
-    console.log("lt", lastItem);
     if (!lastItem) {
       return;
     }
