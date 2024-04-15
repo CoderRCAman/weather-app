@@ -156,7 +156,7 @@ export default async function Page({ searchParams }: any) {
               className="glass-morph-card w-full sm:w-[48%] md:w-56 text-[rgb(244,245,246)] p-2"
               key={forcast.dt}
             >
-              <div className="">
+              <div className="flex justify-between items-center  sm:flex-col">
                 <p className="text-sm font-semibold ">
                   {convertUnixTimeToDateTime(forcast.dt)}
                 </p>

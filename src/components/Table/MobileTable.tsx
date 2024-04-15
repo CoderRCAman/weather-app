@@ -61,33 +61,38 @@ const MobileTable = observer(() => {
     () => data?.pages?.flatMap((page) => page.data) ?? [],
     [data]
   );
+  const totalDBRowCount = data?.pages?.[0]?.meta?.totalRowCount ?? 0;
+  const totalFetched = flatData.length;
 
+  //called on scroll and possibly on mount to fetch more data as the user scrolls and reaches bottom of table
+  const fetchMoreOnBottomReached = React.useCallback(
+    (containerRefElement?: HTMLDivElement | null) => {
+      if (containerRefElement) {
+        const { scrollHeight, scrollTop, clientHeight } = containerRefElement;
+        //once the user has scrolled within 500px of the bottom of the table, fetch more data if we can
+        if (
+          scrollHeight - scrollTop - clientHeight < 500 &&
+          !isFetching &&
+          totalFetched < totalDBRowCount
+        ) {
+          fetchNextPage();
+        }
+      }
+    },
+    // [fetchNextPage, isFetching, totalFetched, totalDBRowCount]
+    [isFetching, totalFetched, totalDBRowCount, fetchNextPage] //todo fetchNextPage
+  );
+
+  //a check on mount and after a fetch to see if the table is already scrolled to the bottom and immediately needs to fetch more data
+  React.useEffect(() => {
+    fetchMoreOnBottomReached(tableContainerRef.current);
+  }, [fetchMoreOnBottomReached]);
   const rowVirtualizer = useVirtualizer({
     count: hasNextPage ? flatData.length + 1 : flatData.length,
     getScrollElement: () => tableContainerRef.current,
-    estimateSize: () => 160,
+    estimateSize: () => 170,
     overscan: 5,
   });
-  React.useEffect(() => {
-    const [lastItem] = [...rowVirtualizer.getVirtualItems()].reverse();
-    if (!lastItem) {
-      return;
-    }
-
-    if (
-      lastItem.index >= flatData.length - 1 &&
-      hasNextPage &&
-      !isFetchingNextPage
-    ) {
-      fetchNextPage();
-    }
-  }, [
-    hasNextPage,
-    fetchNextPage,
-    flatData.length,
-    isFetchingNextPage,
-    rowVirtualizer.getVirtualItems(),
-  ]);
 
   if (isLoading) {
     return (
@@ -103,6 +108,7 @@ const MobileTable = observer(() => {
   return (
     <div className=" mb-5 md:hidden ">
       <div
+        onScroll={(e) => fetchMoreOnBottomReached(e.target as HTMLDivElement)}
         ref={tableContainerRef}
         style={{
           height: `650px`,
@@ -117,70 +123,80 @@ const MobileTable = observer(() => {
             position: "relative",
           }}
         >
-          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-            const isLoaderRow = virtualRow.index > flatData.length - 1;
-            const post = flatData[virtualRow.index];
-            return (
-              <div
-                key={virtualRow.index}
-                className={
-                  virtualRow.index % 2 ? "ListItemOdd" : "ListItemEven"
-                }
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  maxHeight: `${virtualRow.size}px`,
-                  transform: `translateY(${virtualRow.start}px)`,
-                  display: "flex",
-                  flexDirection: "column",
-                  zIndex:10
-                }}
-              >
-                <div className="p-2 flex ">
-                  <div className="rounded-md w-full shadow-md  ">
-                    <Link
-                      className="flex justify-between p-3 flex-wrap gap-y-2"
-                      href={`/weather?city=${post?.name}&lat=${post?.lat}&lon=${post?.lon}&country=${post?.cou_name_en}&timezone=${post?.timezone}&id=${post?.geoname_id}`}
-                    >
-                      <div className="grid grid-cols-2">
-                        <div className="  w-40 rounded-md">
-                          <p className="text-sm text-slate-500 font-semibold">
-                            {post?.geoname_id}
-                          </p>
+          {flatData.length == 0 ? (
+            <p className="text-sm text-slate-400 font-semibold text-center">
+              No results found!
+            </p>
+          ) : (
+            rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              const isLoaderRow = virtualRow.index > flatData.length - 1;
+              const post = flatData[virtualRow.index];
+              return (
+                <div
+                  key={virtualRow.index}
+                  className={
+                    virtualRow.index % 2 ? "ListItemOdd" : "ListItemEven"
+                  }
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    maxHeight: `${virtualRow.size}px`,
+                    transform: `translateY(${virtualRow.start}px)`,
+                    display: "flex",
+                    flexDirection: "column",
+                    zIndex: 10,
+                  }}
+                >
+                  <div className="p-2 flex ">
+                    <div className="rounded-md w-full shadow-md  ">
+                      <Link
+                        className="flex justify-between  p-3 flex-wrap gap-y-2"
+                        href={`/weather?city=${post?.name}&lat=${post?.lat}&lon=${post?.lon}&country=${post?.cou_name_en}&timezone=${post?.timezone}&id=${post?.geoname_id}`}
+                      >
+                        <div className="grid w-full grid-cols-2">
+                          <div className=" w-full flex justify-start   rounded-md">
+                            <p className="text-sm w-40 text-slate-500 font-semibold">
+                              {post?.geoname_id}
+                            </p>
+                          </div>
+                          <div className=" w-full flex justify-end rounded-md">
+                            <div className="">
+                              <p className="text-sm  text-slate-500 font-semibold">
+                                {post?.name}
+                              </p>
+                              <p className="text-slate-400">
+                                {post?.cou_name_en}
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                        <div className="  w-40 rounded-md">
-                          <p className="text-sm text-slate-500 font-semibold">
-                            {post?.name}
-                          </p>
-                          <p className="text-slate-400">{post?.cou_name_en}</p>
+                        <div className="flex items-center justify-between w-full gap-y-1 flex-wrap">
+                          <div className="w-40">
+                            <p className="text-sm text-slate-400 font-semibold">
+                              Lat: {post?.lat}
+                            </p>
+                            <p className="text-sm text-slate-400 font-semibold">
+                              Lon: {post?.lon}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-slate-400 font-semibold">
+                              Timezone: {post?.timezone}
+                            </p>
+                            <p className="text-sm text-slate-400">
+                              Population : {post?.population}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-y-1 flex-wrap">
-                        <div className="w-40">
-                          <p className="text-sm text-slate-400 font-semibold">
-                            Lat: {post?.lat}
-                          </p>
-                          <p className="text-sm text-slate-400 font-semibold">
-                            Lon: {post?.lon}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-slate-400 font-semibold">
-                            Timezone: {post?.timezone}
-                          </p>
-                          <p className="text-sm text-slate-400">
-                            Population : {post?.population}
-                          </p>
-                        </div>
-                      </div>
-                    </Link>
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </div>
       {isFetching && (
