@@ -29,7 +29,6 @@ const AutoCompleteSearch = observer(() => {
     timezone: string,
     id: number
   ) => {
-    console.log("ola");
     router.push(
       `/weather?city=${name}&lat=${lat}&lon=${lon}&country=${country}&timezone=${timezone}&id=${id}`
     );

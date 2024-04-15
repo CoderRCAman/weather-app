@@ -16,7 +16,7 @@ export default function AddHistory({
   country: string;
   timezone: string;
   id: string;
-}) {
+}) { 
   useHistory({ lat, lon, city, country, timezone, id });
   return <></>;
 }

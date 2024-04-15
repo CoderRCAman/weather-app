@@ -6,7 +6,7 @@ import React from "react";
 import { observer } from "mobx-react-lite";
 import Link from "next/link";
 export default observer(function History() {
-  const { history, clearHistory } = useMst();
+  const { history, clearHistory } = useMst(); 
   return (
     <section className="flex flex-col flex-grow container mx-auto">
       <Search />
@@ -35,7 +35,7 @@ export default observer(function History() {
                 key={bookmark.id}
                 className="shadow-sm p-3 flex justify-between flex-wrap border rounded-md border-gray-100"
               >
-                <div>
+                <div className="w-">
                   <Link
                     href={`/weather?city=${bookmark.city}&lat=${bookmark.lat}&lon=${bookmark.lon}&country=${bookmark.country}&timezone=${bookmark.timezone}&id=${bookmark.id}`}
                   >
@@ -45,7 +45,7 @@ export default observer(function History() {
                   </Link>
                   <p className="text-sm text-slate-400">{bookmark.country}</p>
                 </div>
-                <div className="text-sm font-semibold text-slate-400">
+                <div className="text-sm w-40 font-semibold text-slate-400">
                   <p>Lat: {bookmark.lat}</p>
                   <p>Lon: {bookmark.lon}</p>
                 </div>

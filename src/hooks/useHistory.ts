@@ -1,5 +1,5 @@
-"use client"
-import { useContext } from "react";
+"use client";
+import { useContext, useEffect } from "react";
 import { RootStoreContext } from "@/store/model";
 export default function useHistory({
   id,
@@ -19,6 +19,8 @@ export default function useHistory({
   const store = useContext(RootStoreContext);
   if (store === null) {
     throw new Error("Store cannot be null, please add a context provider");
-  } 
-  store.addToHistory({ id, city, lat, lon, country, timezone });
+  }
+  useEffect(() => {
+    store.addToHistory({ id, city, lat, lon, country, timezone });
+  }, []);
 }

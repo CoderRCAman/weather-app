@@ -21,6 +21,7 @@ import AtmosphereBg from "@/components/Weather/Atmosphere";
 import SnowBg from "@/components/Weather/SnowBg";
 import Bookmark from "@/components/Weather/Bookmark";
 import AddHistory from "@/components/Weather/AddHistory";
+import ShowSunRiseSet from "@/components/Weather/ShowSunRiseSet";
 async function getData(lat: string, lon: string) {
   if (!lat || !lon) return {};
   const res = await fetch(
@@ -57,7 +58,6 @@ export default async function Page({ searchParams }: any) {
     searchParams.lat,
     searchParams.lon
   );
-  console.log(obj[data.weather[0].main as keyof typeof obj]);
   return (
     <section className="relative">
       {obj[data.weather[0].main as keyof typeof obj] || <AtmosphereBg />}
@@ -70,7 +70,7 @@ export default async function Page({ searchParams }: any) {
           country={country}
           timezone={timezone}
         />
-        <Search /> 
+        <Search />
         <Bookmark
           city={city}
           country={country}
@@ -128,34 +128,10 @@ export default async function Page({ searchParams }: any) {
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <p className="flex items-center gap-2">
-                  <WiSunrise className="text-red-400 text-3xl" />
-                  <span className="text-sm  ">
-                    {new Date(data.sys.sunrise * 1000).toLocaleTimeString(
-                      "en-US",
-                      {
-                        hour: "numeric",
-                        minute: "numeric",
-                        hour12: true, // Use 12-hour clock format)}
-                      }
-                    )}
-                  </span>
-                </p>
-                <p className="flex items-center gap-2">
-                  <TbSunset2 className="text-red-500 text-3xl " />
-                  <span className="text-sm ">
-                    {new Date(data.sys.sunset * 1000).toLocaleTimeString(
-                      "en-US",
-                      {
-                        hour: "numeric",
-                        minute: "numeric",
-                        hour12: true, // Use 12-hour clock format)}
-                      }
-                    )}
-                  </span>
-                </p>
-              </div>
+              <ShowSunRiseSet
+                sunrise_timestamp={data.sys.sunrise}
+                sunset_timestamp={data.sys.sunset}
+              />
               <div className="space-y-2">
                 <p className="flex items-center gap-2 ">
                   <LiaCloudSolid className="text-3xl " />

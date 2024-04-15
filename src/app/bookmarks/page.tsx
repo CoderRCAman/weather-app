@@ -17,7 +17,7 @@ export default observer(function Bookmarks() {
             </h1>
           )}
           <div className="space-y-1">
-            {bookmarks.map((bookmark) => (
+            {bookmarks.map(book=>book).reverse().map((bookmark) => (
               <div
                 key={bookmark.id}
                 className="shadow-sm p-3 gap-y-2 flex justify-between flex-wrap border rounded-md border-gray-100"

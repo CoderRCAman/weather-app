@@ -60,15 +60,17 @@ const RootModel = types
           id,
         })
       );
-      const localBookmarks = localStorage.getItem("history");
-      if (localBookmarks) {
-        const arrBookmarks: any[] = JSON.parse(localBookmarks);
-        arrBookmarks.push({ id, city, lat, lon, country, timezone });
-        localStorage.setItem("history", JSON.stringify(arrBookmarks));
-      } else {
-        //add new here
-        const newArr = [{ id, city, lat, lon, country, timezone }];
-        localStorage.setItem("history", JSON.stringify(newArr));
+      if (typeof window != "undefined") {
+        const localBookmarks = localStorage.getItem("history");
+        if (localBookmarks) {
+          const arrBookmarks: any[] = JSON.parse(localBookmarks);
+          arrBookmarks.push({ id, city, lat, lon, country, timezone });
+          localStorage.setItem("history", JSON.stringify(arrBookmarks));
+        } else {
+          //add new here
+          const newArr = [{ id, city, lat, lon, country, timezone }];
+          localStorage.setItem("history", JSON.stringify(newArr));
+        }
       }
     },
     addBookmark({
@@ -89,6 +91,7 @@ const RootModel = types
       self.bookmarks.push(
         Location.create({ city, lat, lon, country, timezone, id })
       );
+    
       const localBookmarks = localStorage.getItem("bookmarks");
 
       if (localBookmarks) {
